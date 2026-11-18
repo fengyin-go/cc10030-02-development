@@ -95,7 +95,7 @@ class DataChannel:
         """将脏行隔离到专用通道，不丢失、不阻塞主数据流。"""
         _dirty = dirty_rows or []
         for row in _dirty:
-            row = dict(row)
+            # 原地修改，保证隔离原因真正写回发布的行
             row["_isolated_reason"] = reason or "脏行数据"
             row["_isolated_at"] = time.strftime(
                 "%Y-%m-%dT%H:%M:%SZ", time.gmtime())
@@ -159,13 +159,19 @@ class Store:
             name: [dict(row) for row in rows]
             for name, rows in SEED_ROWS.items()
         }
+        # 领域服务的内部明细表不属于业务模块，不计入模块清单与运营概览
+        self.internal_tables: set[str] = set()
         self.channel = DataChannel()
         self.recovery = FailureRecovery()
+
+    def register_internal_table(self, name: str) -> None:
+        self.internal_tables.add(name)
 
     # ---- 原有 CRUD 接口（保持不变）----
 
     def module_names(self) -> list[str]:
-        return sorted(self._tables)
+        return sorted(name for name in self._tables
+                      if name not in self.internal_tables)
 
     def rows(self, module: str) -> list[dict[str, Any]]:
         return self._tables.setdefault(module, [])

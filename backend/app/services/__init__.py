@@ -22,6 +22,7 @@ from app.services.ingest_monitor import IngestMonitorService
 from app.services.backup_policy import BackupPolicyService
 from app.services.data_dictionary import DataDictionaryService
 from app.services.access_control import AccessControlService
+from app.services.batch_detail import BatchDetailService
 
 SERVICES: dict[str, BaseModuleService] = {
     "lake_zone": LakeZoneService(),
@@ -44,6 +45,7 @@ SERVICES: dict[str, BaseModuleService] = {
     "backup_policy": BackupPolicyService(),
     "data_dictionary": DataDictionaryService(),
     "access_control": AccessControlService(),
+    "batch_detail": BatchDetailService(),
 }
 
 
